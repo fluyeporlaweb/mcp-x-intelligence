@@ -1,0 +1,48 @@
+{
+  "name": "mcp-x-intelligence",
+  "version": "1.0.0",
+  "description": "X/Twitter research MCP for Claude, Cursor, Windsurf and any MCP-compatible AI agent",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "twitter",
+    "x",
+    "twitter-api",
+    "twitterapi",
+    "twitterapi.io",
+    "x-api",
+    "social-media",
+    "content-strategy",
+    "viral-content",
+    "trend-analysis",
+    "claude",
+    "cursor",
+    "windsurf",
+    "cline",
+    "ai-agent",
+    "research",
+    "analytics",
+    "mcp-server",
+    "content-creator",
+    "social-research",
+    "x-research"
+  ],
+  "author": "fluyeporlaweb",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250522.0",
+    "typescript": "^5.4.5",
+    "wrangler": "^3.57.0"
+  }
+}
