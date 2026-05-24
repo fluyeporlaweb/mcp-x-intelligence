@@ -3,10 +3,17 @@ import { ACCOUNT_MANIFEST, analyzeAccount } from "./tools/account.js";
 import { TRENDS_MANIFEST, getTrendingTopics } from "./tools/trends.js";
 import { NICHE_MANIFEST, getNicheLeaders } from "./tools/niche.js";
 import type { ToolResult } from "./client.js";
+import type { HermesTweetConfig } from "./hermes-tweet.js";
 
 export interface Env {
   TWITTERAPI_KEY: string;
   WORKER_SECRET: string;
+  HERMES_TWEET_API_KEY?: string;
+  XQUIK_API_KEY?: string;
+  HERMES_TWEET_BASE_URL?: string;
+  XQUIK_BASE_URL?: string;
+  X_SEARCH_BACKEND?: string;
+  HERMES_TWEET_SEARCH_BACKEND?: string;
 }
 
 const SERVER_NAME = "mcp-x-intelligence";
@@ -19,7 +26,8 @@ const TOOLS_MANIFEST = [SEARCH_MANIFEST, ACCOUNT_MANIFEST, TRENDS_MANIFEST, NICH
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret, X-MCP-Worker-Secret",
+  "Access-Control-Allow-Headers":
+    "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret, X-MCP-Worker-Secret, x-hermes-tweet-key, x-xquik-api-key, x-search-backend",
 };
 
 // JSON-RPC 2.0 error codes
@@ -60,6 +68,7 @@ function rpcError(id: string | number | null | undefined, code: number, message:
 async function handleRpcMessage(
   msg: JsonRpcRequest,
   apiKey: string,
+  hermesTweetConfig?: HermesTweetConfig,
 ): Promise<unknown> {
   const { method, id, params } = msg;
 
@@ -97,7 +106,11 @@ async function handleRpcMessage(
       try {
         switch (toolName) {
           case "search_viral_content":
-            result = await searchViralContent(toolArgs as unknown as Parameters<typeof searchViralContent>[0], apiKey);
+            result = await searchViralContent(
+              toolArgs as unknown as Parameters<typeof searchViralContent>[0],
+              apiKey,
+              hermesTweetConfig,
+            );
             break;
           case "analyze_account":
             result = await analyzeAccount(toolArgs as unknown as Parameters<typeof analyzeAccount>[0], apiKey);
@@ -153,6 +166,19 @@ export default {
       return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
     }
 
+    const hermesTweetConfig: HermesTweetConfig = {
+      apiKey:
+        request.headers.get("x-hermes-tweet-key") ??
+        request.headers.get("x-xquik-api-key") ??
+        env.HERMES_TWEET_API_KEY ??
+        env.XQUIK_API_KEY,
+      baseUrl: env.HERMES_TWEET_BASE_URL ?? env.XQUIK_BASE_URL,
+      defaultBackend:
+        request.headers.get("x-search-backend") ??
+        env.X_SEARCH_BACKEND ??
+        env.HERMES_TWEET_SEARCH_BACKEND,
+    };
+
     let body: unknown;
     try {
       body = await request.json();
@@ -163,12 +189,12 @@ export default {
     // Batch requests
     if (Array.isArray(body)) {
       const responses = await Promise.all(
-        body.map((msg) => handleRpcMessage(msg as JsonRpcRequest, apiKey)),
+        body.map((msg) => handleRpcMessage(msg as JsonRpcRequest, apiKey, hermesTweetConfig)),
       );
       return jsonResponse(responses.filter((r) => r !== null));
     }
 
-    const response = await handleRpcMessage(body as JsonRpcRequest, apiKey);
+    const response = await handleRpcMessage(body as JsonRpcRequest, apiKey, hermesTweetConfig);
     return jsonResponse(response);
   },
 } satisfies ExportedHandler<Env>;
