@@ -30,7 +30,7 @@ export function errorResult(message: string, tool: string, status?: number): Too
  * All requests authenticate via the x-api-key header.
  */
 export class TwitterClient {
-  private readonly baseUrl = "https://twitterapi.io";
+  private readonly baseUrl = "https://api.twitterapi.io";
 
   constructor(private readonly apiKey: string) {}
 
@@ -53,7 +53,7 @@ export class TwitterClient {
     }
 
     const response = await fetch(url.toString(), {
-      headers: { "x-api-key": this.apiKey },
+      headers: { "X-API-Key": this.apiKey },
     });
 
     if (!response.ok) {
