@@ -199,8 +199,12 @@ limit         number   optional  Max accounts (default: 10)
 
 ## Hosted version (no setup required)
 
-> **MCPize listing coming soon.**
-> Once listed, you'll be able to connect directly without self-hosting or an API key.
+Use it instantly via MCPize — no API key or setup needed:
+
+→ [mcp-x-intelligence on MCPize](https://mcpize.com/mcp/mcp-x-intelligence)
+
+Free tier: 50 calls/month
+Pro: 1,000 calls/month — $9/mo
 
 ---
 
