@@ -6,6 +6,7 @@ import type { ToolResult } from "./client.js";
 
 export interface Env {
   TWITTERAPI_KEY: string;
+  WORKER_SECRET: string;
 }
 
 const SERVER_NAME = "mcp-x-intelligence";
@@ -18,7 +19,7 @@ const TOOLS_MANIFEST = [SEARCH_MANIFEST, ACCOUNT_MANIFEST, TRENDS_MANIFEST, NICH
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key",
+  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret",
 };
 
 // JSON-RPC 2.0 error codes
@@ -124,18 +125,23 @@ export default {
       return jsonResponse(rpcError(null, ERR_INVALID_REQUEST, "Only POST is supported"), 405);
     }
 
-    // BYOK: caller-supplied key takes precedence over env secret
-    const apiKey = request.headers.get("x-twitterapi-key") ?? env.TWITTERAPI_KEY;
+    const byokKey = request.headers.get("x-twitterapi-key");
+    const workerSecret = request.headers.get("x-worker-secret");
+    const isMcpize = (request.headers.get("user-agent") ?? "").toLowerCase().includes("mcpize");
 
-    if (!apiKey) {
-      return jsonResponse(
-        rpcError(
-          null,
-          -32001,
-          "Missing API key. Add x-twitterapi-key header or configure TWITTERAPI_KEY secret.",
-        ),
-        401,
-      );
+    let apiKey: string;
+
+    if (byokKey) {
+      // BYOK: caller supplies their own twitterapi.io key
+      apiKey = byokKey;
+    } else if (env.WORKER_SECRET && workerSecret === env.WORKER_SECRET) {
+      // Personal use: valid worker secret → use server's configured key
+      apiKey = env.TWITTERAPI_KEY;
+    } else if (isMcpize) {
+      // MCPize gateway manages its own auth; use server's configured key
+      apiKey = env.TWITTERAPI_KEY;
+    } else {
+      return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
     }
 
     let body: unknown;

@@ -270,15 +270,24 @@ Push to `main` auto-deploys via GitHub Actions. Add these secrets to your reposi
 | `CLOUDFLARE_API_TOKEN` | Cloudflare API token with Workers edit permission |
 | `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
 | `TWITTERAPI_KEY` | Your twitterapi.io API key |
+| `WORKER_SECRET` | Secret for personal/server-side access (any strong random string) |
 
 ---
 
-## BYOK (Bring Your Own Key)
+## Authentication
 
-Every request can include an `x-twitterapi-key` header. If present, it overrides the server's configured key. This allows:
+The Worker enforces the following access policy on every request:
 
-- **Personal use** — deploy once, use with your own key
-- **Multi-tenant** — each user supplies their own key
+| Request type | Header required | Key used |
+|---|---|---|
+| BYOK user | `x-twitterapi-key: <your-key>` | The supplied key |
+| Personal / server use | `x-worker-secret: <WORKER_SECRET>` | `TWITTERAPI_KEY` env secret |
+| MCPize gateway | `User-Agent` contains `"mcpize"` | `TWITTERAPI_KEY` env secret |
+| Everything else | — | **401 Unauthorized** |
+
+### BYOK (Bring Your Own Key)
+
+Include `x-twitterapi-key` with a valid [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) key. Useful for multi-tenant deployments where each user pays for their own quota.
 
 ```bash
 curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
@@ -286,6 +295,40 @@ curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
   -H "x-twitterapi-key: tk_YOUR_KEY" \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
+
+### Personal use (worker secret)
+
+If you self-host and want to use the server's configured `TWITTERAPI_KEY` without exposing it, add a `WORKER_SECRET` environment variable and pass it as a header:
+
+```bash
+# Set the secret once
+wrangler secret put WORKER_SECRET
+
+# Use it in requests
+curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "x-worker-secret: YOUR_WORKER_SECRET" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+Or in your MCP client config:
+
+```json
+{
+  "mcpServers": {
+    "x-intelligence": {
+      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
+      "headers": {
+        "x-worker-secret": "YOUR_WORKER_SECRET"
+      }
+    }
+  }
+}
+```
+
+### MCPize gateway
+
+Requests routed through [MCPize](https://mcpize.com) are identified by their `User-Agent` header and bypass the secret check — MCPize manages authentication on its side.
 
 ---
 
