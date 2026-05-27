@@ -159,12 +159,21 @@ limit         number   optional  Max accounts (default: 10)
 
 ## Why Not the Official X API?
 
+The official X API uses pay-per-use credit pricing —
+no monthly minimums. However it still requires:
+a developer account approval process, OAuth 2.0 authentication setup,
+and custom integration work to connect with AI agents like Claude.
+
+mcp-x-intelligence removes all that friction.
+One API key from twitterapi.io, one config block, done.
+
 | | Official X API | mcp-x-intelligence |
 |---|---|---|
-| Minimum cost | $200/month | Free (BYOK) or $9/mo |
-| Setup time | Weeks (approval process) | Minutes |
-| MCP native | No | Yes |
+| Pricing model | Pay-per-use credits (no minimum) | Free (BYOK) or $9/mo hosted |
+| Setup time | Developer account approval required | Minutes |
+| MCP native | No — requires custom integration | Yes — plug and play |
 | Works with Claude | Manual integration | Native |
+| Auth complexity | OAuth 2.0 setup required | Single API key |
 
 ---
 
