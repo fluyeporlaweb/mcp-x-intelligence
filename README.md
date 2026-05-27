@@ -183,6 +183,8 @@ One API key from twitterapi.io, one config block, done.
 
 Join the community: [t.me/fluyeporlaweb](https://t.me/fluyeporlaweb)
 
+Listed on [Smithery](https://smithery.ai/server/fluyeporlaweb/mcp-x-intelligence)
+
 ---
 
 ## License
