@@ -9,6 +9,7 @@ Search viral content, analyze X accounts, track trending topics and discover nic
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Cloudflare Workers](https://img.shields.io/badge/Hosted%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
 [![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
+[![smithery badge](https://smithery.ai/badge/fluyeporlaweb/mcp-x-intelligence)](https://smithery.ai/servers/fluyeporlaweb/mcp-x-intelligence)
 
 ---
 
