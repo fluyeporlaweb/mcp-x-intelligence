@@ -1,5 +1,9 @@
 # mcp-x-intelligence — X/Twitter Research MCP for Claude, Cursor & AI Agents
 
+<p align="center">
+  <img src="assets/logo.png" alt="mcp-x-intelligence logo" width="120">
+</p>
+
 Search viral content, analyze X accounts, track trending topics and discover niche leaders — directly from Claude, Cursor, Windsurf or any MCP-compatible AI agent. Powered by [twitterapi.io](https://twitterapi.io?ref=fluyeporla666). No posting. No DMs. Pure read-only research.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
