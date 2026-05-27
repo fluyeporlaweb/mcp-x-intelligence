@@ -1,0 +1,12 @@
+startCommand:
+  type: http
+  url: https://mcp-x-intelligence.fluyeporlaweb.workers.dev/mcp
+  configSchema:
+    type: object
+    properties:
+      x-twitterapi-key:
+        type: string
+        title: twitterapi.io API Key
+        description: "Your twitterapi.io API key. Get one free at https://twitterapi.io?ref=fluyeporla666"
+    required:
+      - x-twitterapi-key
