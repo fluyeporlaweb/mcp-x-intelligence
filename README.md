@@ -1,171 +1,109 @@
-# mcp-x-intelligence
+# mcp-x-intelligence — X/Twitter Research MCP for Claude, Cursor & AI Agents
 
-**X/Twitter research MCP for Claude, Cursor, Windsurf and any MCP-compatible AI agent.**
+Search viral content, analyze X accounts, track trending topics and discover niche leaders — directly from Claude, Cursor, Windsurf or any MCP-compatible AI agent. Powered by [twitterapi.io](https://twitterapi.io?ref=fluyeporla666). No posting. No DMs. Pure read-only research.
 
-Search viral content, analyze accounts, track trends, and find niche leaders — all from your AI assistant. No posting. No DMs. Pure read-only research.
-
----
-
-## What it does
-
-`mcp-x-intelligence` exposes four research tools over the [Model Context Protocol (MCP)](https://modelcontextprotocol.io):
-
-- **Search viral content** — find posts that are blowing up around any keyword
-- **Analyze accounts** — deep engagement metrics, top posts, best posting times
-- **Get trending topics** — real-time trends by country
-- **Find niche leaders** — discover top creators in any space
-
-This is a research tool. It never posts, replies, or modifies anything on X.
+[![npm](https://img.shields.io/npm/v/mcp-x-intelligence)](https://www.npmjs.com/package/mcp-x-intelligence)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Cloudflare Workers](https://img.shields.io/badge/Hosted%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
 
 ---
 
-## Why not the official X API?
+## What it does — 4 X Research Tools for AI Agents
 
-The official X API requires a developer account, a paid plan, and a complex OAuth setup. The cheapest tier that allows meaningful search access starts at **$200+/month**. For research and content strategy, that's overkill.
-
-`mcp-x-intelligence` uses [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) — a third-party API that provides the same data at a fraction of the cost, with a simple API key (no OAuth dance).
-
----
-
-## Compatible clients
-
-Works with any MCP-compatible AI agent:
-
-| Client | Config file |
-|--------|-------------|
-| [Claude Desktop](https://claude.ai/download) | `claude_desktop_config.json` |
-| [Claude Code](https://claude.ai/code) | `.claude/settings.json` |
-| [Cursor](https://cursor.sh) | `.cursor/mcp.json` |
-| [Windsurf](https://codeium.com/windsurf) | `mcp_config.json` |
-| [Cline](https://github.com/cline/cline) | VS Code settings |
-| [Codex CLI](https://github.com/openai/codex) | `~/.codex/config.yaml` |
-| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `~/.gemini/settings.json` |
-| Any MCP client | Standard config |
+| Tool | What it does | Example prompt |
+|------|-------------|----------------|
+| `search_viral_content` | Find top posts by keyword with engagement filters (likes, retweets, time window) | *"Find the most viral posts about AI agents in the last 48h"* |
+| `analyze_account` | Full profile analysis: followers, top posts, engagement rate, active hours | *"Analyze @fluyeporlaweb and tell me their best content strategy"* |
+| `get_trending_topics` | Trending topics by country in real time | *"What's trending in Spain and Mexico right now?"* |
+| `get_niche_leaders` | Top accounts in any niche sorted by follower count | *"Who are the top 10 AI tool creators on X?"* |
 
 ---
 
-## Quick start — BYOK
+## Compatible with Every Major MCP Client
 
-**1. Get your API key**
+Claude Desktop · Claude Code · Cursor · Windsurf · Cline · Codex CLI · Gemini CLI · any MCP-compatible AI agent
 
-Sign up at [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) and grab your key from the dashboard.
+---
 
-**2. Add to your MCP client**
+## Quick Start
 
-Choose your client below and replace `tk_YOUR_KEY_HERE` with your actual key.
+### Option 1 — Hosted Version via MCPize (No Setup Required)
 
-### Claude Desktop
+**Recommended for non-technical users.** No API key, no Node.js, nothing to install. Just connect and start researching.
 
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+→ **[Use mcp-x-intelligence on MCPize](https://mcpize.com/mcp/mcp-x-intelligence)**
+
+| Plan | Calls/month | Price |
+|------|-------------|-------|
+| Free | 50 | Free |
+| Pro | 1,000 | $9/mo |
+
+---
+
+### Option 2 — BYOK: Bring Your Own twitterapi.io Key (Free)
+
+Connect directly to our hosted endpoint using your own API key. No server setup needed — we host the MCP server for you.
+
+**Step 1 — Get a free twitterapi.io API key**
+
+Sign up at [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) and copy your key from the dashboard.
+
+**Step 2 — Add the MCP server to your AI client config**
+
+Pick your client below and replace `YOUR_TWITTERAPI_KEY` with your actual key.
+
+#### Claude Desktop on Windows
+
+Config file: `%LOCALAPPDATA%\Packages\Claude_...\LocalCache\Roaming\Claude\claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
+      "command": "cmd",
+      "args": [
+        "/c", "npx", "-y", "mcp-remote",
+        "https://mcp-x-intelligence.fluyeporlaweb.workers.dev/mcp",
+        "--header", "x-twitterapi-key: YOUR_TWITTERAPI_KEY"
+      ]
     }
   }
 }
 ```
 
-### Claude Code
+#### Claude Desktop on Mac
+
+Config file: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
     "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
+      "command": "npx",
+      "args": [
+        "-y", "mcp-remote",
+        "https://mcp-x-intelligence.fluyeporlaweb.workers.dev/mcp",
+        "--header", "x-twitterapi-key: YOUR_TWITTERAPI_KEY"
+      ]
     }
   }
 }
 ```
 
-### Cursor
+#### Cursor / Windsurf / Cline
 
-Edit `.cursor/mcp.json` in your project or `~/.cursor/mcp.json` globally:
+Same config as Mac above. Add it to your MCP settings JSON file.
 
-```json
-{
-  "mcpServers": {
-    "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
-    }
-  }
-}
-```
+**Step 3 — Restart your AI client and verify**
 
-### Windsurf
+Ask your AI assistant:
+> *"What tools do you have available?"*
 
-Edit `~/.codeium/windsurf/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-### Cline (VS Code)
-
-In VS Code settings (`settings.json`):
-
-```json
-{
-  "cline.mcpServers": {
-    "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
-    }
-  }
-}
-```
-
-### Gemini CLI
-
-Edit `~/.gemini/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-twitterapi-key": "tk_YOUR_KEY_HERE"
-      }
-    }
-  }
-}
-```
+You should see the `x-intelligence` tools listed.
 
 ---
 
-## Available tools
-
-| Tool | Description |
-|------|-------------|
-| `search_viral_content` | Find viral posts by keyword with engagement filters (likes, retweets, time window) |
-| `analyze_account` | Full account analysis: followers, engagement rate, top 5 posts, most active hours |
-| `get_trending_topics` | Real-time trending topics by country (worldwide, USA, Spain, Mexico, Argentina, Colombia...) |
-| `get_niche_leaders` | Find top accounts in any niche sorted by follower count |
-
-### Tool parameters
+## Tool Parameters Reference
 
 **`search_viral_content`**
 ```
@@ -197,151 +135,43 @@ limit         number   optional  Max accounts (default: 10)
 
 ---
 
-## Hosted version (no setup required)
+## Use Cases for X Research with AI
 
-Use it instantly via MCPize — no API key or setup needed:
-
-→ [mcp-x-intelligence on MCPize](https://mcpize.com/mcp/mcp-x-intelligence)
-
-Free tier: 50 calls/month
-Pro: 1,000 calls/month — $9/mo
+- **Content creators** — Find what's going viral in your niche before writing your next thread or post
+- **Marketers** — Competitive account analysis and real-time trend monitoring at zero cost
+- **Developers** — Build research pipelines and content strategy tools backed by live X data
+- **Researchers** — Social media data collection without the official X API price tag
 
 ---
 
-## Use cases
+## Example Prompts to Try
 
-- **Find viral content before writing** — search what's already performing well in your niche before you write your next thread or post
-- **Analyze competitor accounts** — understand their engagement rate, best-performing content, and optimal posting times
-- **Discover trending topics before they peak** — catch trends early by monitoring real-time data by country
-- **Find top creators in any niche** — build a list of influencers and voices worth following or collaborating with
-- **AI-powered content strategy** — combine all four tools to let your AI agent build a complete content plan based on real data
-
----
-
-## Self-hosting on Cloudflare Workers
-
-You can deploy your own instance for free (Cloudflare Workers free tier is generous).
-
-### Prerequisites
-
-- [Node.js](https://nodejs.org) 20+
-- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/): `npm install -g wrangler`
-- A Cloudflare account (free)
-- A [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) API key
-
-### Deploy
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/fluyeporlaweb/mcp-x-intelligence.git
-cd mcp-x-intelligence
-
-# 2. Install dependencies
-npm install
-
-# 3. Authenticate with Cloudflare
-wrangler login
-
-# 4. Add your API key as a secret
-wrangler secret put TWITTERAPI_KEY
-
-# 5. Deploy
-wrangler deploy
-```
-
-Your MCP server will be live at `https://mcp-x-intelligence.<your-account>.workers.dev`.
-
-### Local development
-
-Create `.dev.vars` in the root (already in `.gitignore`):
-
-```
-TWITTERAPI_KEY=your_key_here
-```
-
-Then run:
-
-```bash
-npm run dev
-```
-
-### GitHub Actions CI/CD
-
-Push to `main` auto-deploys via GitHub Actions. Add these secrets to your repository:
-
-| Secret | Description |
-|--------|-------------|
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API token with Workers edit permission |
-| `CLOUDFLARE_ACCOUNT_ID` | Your Cloudflare account ID |
-| `TWITTERAPI_KEY` | Your twitterapi.io API key |
-| `WORKER_SECRET` | Secret for personal/server-side access (any strong random string) |
+- *"Search for viral posts about Claude MCP from the last 48 hours with over 100 likes"*
+- *"Analyze the account @OpenAI — what are their top 5 posts and when do they usually post?"*
+- *"What's trending in Mexico and Argentina right now?"*
+- *"Find the top 10 accounts in the AI tools niche on X"*
 
 ---
 
-## Authentication
+## Why Not the Official X API?
 
-The Worker enforces the following access policy on every request:
-
-| Request type | Header required | Key used |
+| | Official X API | mcp-x-intelligence |
 |---|---|---|
-| BYOK user | `x-twitterapi-key: <your-key>` | The supplied key |
-| Personal / server use | `x-worker-secret: <WORKER_SECRET>` | `TWITTERAPI_KEY` env secret |
-| MCPize gateway | `User-Agent` contains `"mcpize"` | `TWITTERAPI_KEY` env secret |
-| Everything else | — | **401 Unauthorized** |
+| Minimum cost | $200/month | Free (BYOK) or $9/mo |
+| Setup time | Weeks (approval process) | Minutes |
+| MCP native | No | Yes |
+| Works with Claude | Manual integration | Native |
 
-### BYOK (Bring Your Own Key)
+---
 
-Include `x-twitterapi-key` with a valid [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) key. Useful for multi-tenant deployments where each user pays for their own quota.
+## Built by
 
-```bash
-curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
-  -H "Content-Type: application/json" \
-  -H "x-twitterapi-key: tk_YOUR_KEY" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-```
+[@fluyeporlaweb](https://x.com/fluyeporlaweb) — AI tools, automation and developer resources in Spanish.
 
-### Personal use (worker secret)
-
-If you self-host and want to use the server's configured `TWITTERAPI_KEY` without exposing it, add a `WORKER_SECRET` environment variable and pass it as a header:
-
-```bash
-# Set the secret once
-wrangler secret put WORKER_SECRET
-
-# Use it in requests
-curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
-  -H "Content-Type: application/json" \
-  -H "x-worker-secret: YOUR_WORKER_SECRET" \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
-```
-
-Or in your MCP client config:
-
-```json
-{
-  "mcpServers": {
-    "x-intelligence": {
-      "url": "https://mcp-x-intelligence.<your-account>.workers.dev",
-      "headers": {
-        "x-worker-secret": "YOUR_WORKER_SECRET"
-      }
-    }
-  }
-}
-```
-
-### MCPize gateway
-
-Requests routed through [MCPize](https://mcpize.com) are identified by their `User-Agent` header and bypass the secret check — MCPize manages authentication on its side.
+Join the community: [t.me/fluyeporlaweb](https://t.me/fluyeporlaweb)
 
 ---
 
 ## License
 
 MIT — do whatever you want with it.
-
----
-
-## Built by [@fluyeporlaweb](https://twitter.com/fluyeporlaweb)
-
-If this saves you time, follow me on X. I share tools, AI workflows, and content strategy.
