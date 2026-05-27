@@ -2,9 +2,9 @@
 
 Search viral content, analyze X accounts, track trending topics and discover niche leaders — directly from Claude, Cursor, Windsurf or any MCP-compatible AI agent. Powered by [twitterapi.io](https://twitterapi.io?ref=fluyeporla666). No posting. No DMs. Pure read-only research.
 
-[![npm](https://img.shields.io/npm/v/mcp-x-intelligence)](https://www.npmjs.com/package/mcp-x-intelligence)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Cloudflare Workers](https://img.shields.io/badge/Hosted%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-purple)](https://modelcontextprotocol.io)
 
 ---
 
