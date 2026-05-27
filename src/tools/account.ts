@@ -19,6 +19,53 @@ export const ACCOUNT_MANIFEST = {
     },
     required: ["username"],
   },
+  outputSchema: {
+    type: "object",
+    properties: {
+      username: { type: "string" },
+      name: { type: "string" },
+      followers: { type: "number" },
+      following: { type: "number" },
+      verified: { type: "boolean" },
+      bio: { type: "string" },
+      created_at: { type: "string" },
+      metrics: {
+        type: "object",
+        properties: {
+          avg_likes: { type: "number" },
+          avg_retweets: { type: "number" },
+          avg_replies: { type: "number" },
+          engagement_rate: { type: "number" },
+        },
+      },
+      top_5_posts: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            url: { type: "string" },
+            text: { type: "string" },
+            likes: { type: "number" },
+          },
+        },
+      },
+      most_active_hours: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            hour: { type: "number" },
+            count: { type: "number" },
+            label: { type: "string" },
+          },
+        },
+      },
+    },
+  },
+  annotations: {
+    readOnlyHint: true,
+    openWorldHint: true,
+  },
 };
 
 interface AccountArgs {

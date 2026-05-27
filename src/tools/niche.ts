@@ -19,6 +19,31 @@ export const NICHE_MANIFEST = {
     },
     required: ["keyword"],
   },
+  outputSchema: {
+    type: "object",
+    properties: {
+      leaders: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            username: { type: "string" },
+            name: { type: "string" },
+            followers: { type: "number" },
+            verified: { type: "boolean" },
+            bio: { type: "string" },
+            profile_url: { type: "string" },
+          },
+        },
+      },
+      count: { type: "number" },
+      keyword: { type: "string" },
+    },
+  },
+  annotations: {
+    readOnlyHint: true,
+    openWorldHint: true,
+  },
 };
 
 interface NicheArgs {
