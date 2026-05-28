@@ -44,8 +44,6 @@ export async function getTrendingTopics(args: TrendsArgs, apiKey: string): Promi
       woeid: String(woeid),
     });
 
-    console.error("[trends] raw API response:", JSON.stringify(data, null, 2));
-
     const rawTrends = (
       (data?.trends ?? (data?.data as Record<string, unknown>)?.trends ?? []) as Record<
         string,
@@ -53,17 +51,16 @@ export async function getTrendingTopics(args: TrendsArgs, apiKey: string): Promi
       >[]
     );
 
-    if (rawTrends.length > 0) {
-      console.error("[trends] first trend object:", JSON.stringify(rawTrends[0], null, 2));
-    }
-
-    const trends = rawTrends.map((trend) => ({
-      name: (trend.name ?? trend.query ?? "") as string,
-      tweet_volume: (trend.tweetVolume ?? trend.tweet_volume ?? null) as number | null,
-      url:
-        (trend.url as string | undefined) ??
-        `https://twitter.com/search?q=${encodeURIComponent((trend.name ?? "") as string)}`,
-    }));
+    const trends = rawTrends.map((item) => {
+      const trend = (item.trend ?? item) as Record<string, unknown>;
+      const target = trend.target as Record<string, unknown> | undefined;
+      const query = (target?.query ?? trend.name ?? "") as string;
+      return {
+        name: (trend.name ?? "") as string,
+        tweet_volume: null as number | null,
+        url: `https://twitter.com/search?q=${encodeURIComponent(query)}`,
+      };
+    });
 
     return {
       content: [
