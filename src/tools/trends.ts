@@ -44,12 +44,18 @@ export async function getTrendingTopics(args: TrendsArgs, apiKey: string): Promi
       woeid: String(woeid),
     });
 
+    console.error("[trends] raw API response:", JSON.stringify(data, null, 2));
+
     const rawTrends = (
       (data?.trends ?? (data?.data as Record<string, unknown>)?.trends ?? []) as Record<
         string,
         unknown
       >[]
     );
+
+    if (rawTrends.length > 0) {
+      console.error("[trends] first trend object:", JSON.stringify(rawTrends[0], null, 2));
+    }
 
     const trends = rawTrends.map((trend) => ({
       name: (trend.name ?? trend.query ?? "") as string,
