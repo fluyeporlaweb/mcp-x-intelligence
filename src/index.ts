@@ -10,7 +10,7 @@ export interface Env {
 }
 
 const SERVER_NAME = "mcp-x-intelligence";
-const SERVER_VERSION = "1.2.1";
+const SERVER_VERSION = "1.2.2";
 const PROTOCOL_VERSION = "2024-11-05";
 
 /** All tool manifests in registration order. */

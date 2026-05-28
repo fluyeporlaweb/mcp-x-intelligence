@@ -53,7 +53,10 @@ export class TwitterClient {
     }
 
     const response = await fetch(url.toString(), {
-      headers: { "X-API-Key": this.apiKey },
+      headers: {
+        "X-API-Key": this.apiKey,
+        "Accept": "application/json; charset=utf-8",
+      },
     });
 
     if (!response.ok) {
@@ -63,6 +66,7 @@ export class TwitterClient {
       );
     }
 
-    return response.json() as Promise<T>;
+    const text = await response.text();
+    return JSON.parse(text) as T;
   }
 }
