@@ -31,39 +31,6 @@ export const SEARCH_MANIFEST = {
     },
     required: ["query"],
   },
-  outputSchema: {
-    type: "object",
-    properties: {
-      results: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            id: { type: "string" },
-            url: { type: "string" },
-            text: { type: "string" },
-            author_username: { type: "string" },
-            author_name: { type: "string" },
-            likes: { type: "number" },
-            retweets: { type: "number" },
-            replies: { type: "number" },
-            bookmarks: { type: "number" },
-            created_at: { type: "string" },
-          },
-        },
-      },
-      count: { type: "number" },
-      query: { type: "string" },
-      filters: {
-        type: "object",
-        properties: {
-          min_likes: { type: "number" },
-          min_retweets: { type: "number" },
-          hours_back: { type: "number" },
-        },
-      },
-    },
-  },
   annotations: {
     readOnlyHint: true,
     openWorldHint: true,

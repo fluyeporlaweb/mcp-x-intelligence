@@ -16,24 +16,6 @@ export const TRENDS_MANIFEST = {
     },
     required: [],
   },
-  outputSchema: {
-    type: "object",
-    properties: {
-      trends: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            tweet_volume: { type: ["number", "null"] },
-            url: { type: "string" },
-          },
-        },
-      },
-      count: { type: "number" },
-      woeid: { type: "number" },
-    },
-  },
   annotations: {
     readOnlyHint: true,
     openWorldHint: true,
