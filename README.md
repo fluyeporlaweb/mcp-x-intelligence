@@ -178,6 +178,35 @@ One API key from twitterapi.io, one config block, done.
 
 ---
 
+## Troubleshooting
+
+### "Tool execution failed" or RuntimeError
+Make sure you are using **v1.2.0 or later**.
+Earlier versions had a schema compatibility issue
+affecting Hermes, Cursor and Windsurf users.
+
+The hosted endpoint at MCPize is always up to date.
+
+### Tools not appearing in my AI client
+1. Check your config file has the correct JSON syntax
+2. Restart your AI client completely (not just the window)
+3. Verify your twitterapi.io key is valid at twitterapi.io/dashboard
+
+### Empty results
+Some queries may return no results if:
+- The keyword is too specific
+- The time window (hours_back) is too short
+- The engagement filter (min_likes) is too high
+
+Try broadening your search parameters.
+
+### Rate limits
+twitterapi.io enforces rate limits on free accounts.
+If you get errors after many requests, wait a few minutes
+and try again.
+
+---
+
 ## Built by
 
 [@fluyeporlaweb](https://x.com/fluyeporlaweb) — AI tools, automation and developer resources in Spanish.
