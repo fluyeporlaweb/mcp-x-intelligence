@@ -10,7 +10,7 @@ export interface Env {
 }
 
 const SERVER_NAME = "mcp-x-intelligence";
-const SERVER_VERSION = "1.2.2";
+const SERVER_VERSION = "1.2.3";
 const PROTOCOL_VERSION = "2024-11-05";
 
 /** All tool manifests in registration order. */
@@ -19,7 +19,7 @@ const TOOLS_MANIFEST = [SEARCH_MANIFEST, ACCOUNT_MANIFEST, TRENDS_MANIFEST, NICH
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret",
+  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret, X-MCP-Worker-Secret",
 };
 
 // JSON-RPC 2.0 error codes
@@ -126,7 +126,8 @@ export default {
     }
 
     const byokKey = request.headers.get("x-twitterapi-key");
-    const workerSecret = request.headers.get("x-worker-secret");
+    const workerSecret = request.headers.get("x-worker-secret")
+      ?? request.headers.get("X-MCP-Worker-Secret");
     const isMcpize = (request.headers.get("user-agent") ?? "").toLowerCase().includes("mcpize");
 
     let apiKey: string;
