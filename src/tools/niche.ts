@@ -46,10 +46,9 @@ export async function getNicheLeaders(args: NicheArgs, apiKey: string): Promise<
     const client = new TwitterClient(apiKey);
 
     const requestParams = {
-      keyword,
+      query: keyword,
       count: String(limit),
     };
-    console.log("[get_niche_leaders] endpoint=/twitter/user/search params=", JSON.stringify(requestParams));
 
     const data = await client.get<Record<string, unknown>>("/twitter/user/search", requestParams);
 
