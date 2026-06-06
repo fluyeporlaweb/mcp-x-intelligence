@@ -1,4 +1,4 @@
-import { TwitterClient, ToolResult, errorResult } from "../client.js";
+import { TwitterClient, type TwitterProvider, ToolResult, errorResult } from "../client.js";
 
 /** JSON Schema definition for the search_viral_content tool. */
 export const SEARCH_MANIFEST = {
@@ -54,14 +54,19 @@ interface SearchArgs {
  * @param args.min_retweets - Minimum retweets threshold (default: 0)
  * @param args.hours_back - How many hours back to search (default: 48)
  * @param args.limit - Maximum number of results (default: 20)
- * @param apiKey - twitterapi.io API key
+ * @param apiKey - provider API key
+ * @param provider - data provider to use for X reads
  * @returns Array of viral tweets sorted by likes descending
  */
-export async function searchViralContent(args: SearchArgs, apiKey: string): Promise<ToolResult> {
+export async function searchViralContent(
+  args: SearchArgs,
+  apiKey: string,
+  provider: TwitterProvider = "twitterapi",
+): Promise<ToolResult> {
   const { query, min_likes = 50, min_retweets = 0, hours_back = 48, limit = 20 } = args;
 
   try {
-    const client = new TwitterClient(apiKey);
+    const client = new TwitterClient(apiKey, provider);
 
     const since = new Date(Date.now() - hours_back * 60 * 60 * 1000);
     const sinceStr = since.toISOString().split("T")[0];
@@ -84,7 +89,7 @@ export async function searchViralContent(args: SearchArgs, apiKey: string): Prom
       .map((tweet) => {
         const author = tweet.author as Record<string, unknown> | undefined;
         const user = tweet.user as Record<string, unknown> | undefined;
-        const authorUsername = (author?.userName ?? user?.screen_name ?? "") as string;
+        const authorUsername = (author?.userName ?? author?.username ?? user?.screen_name ?? "") as string;
         const tweetId = (tweet.id ?? tweet.id_str ?? "") as string;
         return {
           id: tweetId,

@@ -8,5 +8,12 @@ startCommand:
         type: string
         title: twitterapi.io API Key
         description: "Your twitterapi.io API key. Get one free at https://twitterapi.io?ref=fluyeporla666"
-    required:
-      - x-twitterapi-key
+      x-xquik-api-key:
+        type: string
+        title: Xquik API Key
+        description: "Optional Xquik API key for X/Twitter read tools. Use this instead of x-twitterapi-key."
+    oneOf:
+      - required:
+          - x-twitterapi-key
+      - required:
+          - x-xquik-api-key

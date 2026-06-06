@@ -4,7 +4,7 @@
   <img src="assets/logo.png" alt="mcp-x-intelligence logo" width="120">
 </p>
 
-Search viral content, analyze X accounts, track trending topics and discover niche leaders — directly from Claude, Cursor, Windsurf or any MCP-compatible AI agent. Powered by [twitterapi.io](https://twitterapi.io?ref=fluyeporla666). No posting. No DMs. Pure read-only research.
+Search viral content, analyze X accounts, track trending topics and discover niche leaders — directly from Claude, Cursor, Windsurf or any MCP-compatible AI agent. Powered by [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) by default, with optional [Xquik](https://xquik.com) BYOK support. No posting. No DMs. Pure read-only research.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Cloudflare Workers](https://img.shields.io/badge/Hosted%20on-Cloudflare%20Workers-orange)](https://workers.cloudflare.com)
@@ -46,17 +46,18 @@ Claude Desktop · Claude Code · Cursor · Windsurf · Cline · Codex CLI · Gem
 
 ---
 
-### Option 2 — BYOK: Bring Your Own twitterapi.io Key (Free)
+### Option 2 — BYOK: Bring Your Own API Key
 
 Connect directly to our hosted endpoint using your own API key. No server setup needed — we host the MCP server for you.
 
-**Step 1 — Get a free twitterapi.io API key**
+**Step 1 — Choose a read provider**
 
-Sign up at [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) and copy your key from the dashboard.
+- Default: sign up at [twitterapi.io](https://twitterapi.io?ref=fluyeporla666) and copy your key from the dashboard.
+- Optional: use an [Xquik](https://xquik.com) API key instead for X/Twitter reads.
 
 **Step 2 — Add the MCP server to your AI client config**
 
-Pick your client below and replace `YOUR_TWITTERAPI_KEY` with your actual key.
+Pick your client below and replace `YOUR_TWITTERAPI_KEY` with your actual key. To use Xquik instead, replace the header with `x-xquik-api-key: YOUR_XQUIK_API_KEY`.
 
 #### Claude Desktop on Windows
 

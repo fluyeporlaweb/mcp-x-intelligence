@@ -1,4 +1,4 @@
-import { TwitterClient, ToolResult, errorResult } from "../client.js";
+import { TwitterClient, type TwitterProvider, ToolResult, errorResult } from "../client.js";
 
 /** JSON Schema definition for the get_trending_topics tool. */
 export const TRENDS_MANIFEST = {
@@ -31,14 +31,19 @@ interface TrendsArgs {
  *
  * @param args - Tool input arguments
  * @param args.woeid - Where On Earth ID (default: 1 = Worldwide)
- * @param apiKey - twitterapi.io API key
+ * @param apiKey - provider API key
+ * @param provider - data provider to use for X reads
  * @returns List of trending topics with name, tweet_volume, and url
  */
-export async function getTrendingTopics(args: TrendsArgs, apiKey: string): Promise<ToolResult> {
+export async function getTrendingTopics(
+  args: TrendsArgs,
+  apiKey: string,
+  provider: TwitterProvider = "twitterapi",
+): Promise<ToolResult> {
   const { woeid = 1 } = args;
 
   try {
-    const client = new TwitterClient(apiKey);
+    const client = new TwitterClient(apiKey, provider);
 
     const data = await client.get<Record<string, unknown>>("/twitter/trends", {
       woeid: String(woeid),
@@ -54,11 +59,11 @@ export async function getTrendingTopics(args: TrendsArgs, apiKey: string): Promi
     const trends = rawTrends.map((item) => {
       const trend = (item.trend ?? item) as Record<string, unknown>;
       const target = trend.target as Record<string, unknown> | undefined;
-      const query = (target?.query ?? trend.name ?? "") as string;
+      const query = (target?.query ?? trend.query ?? trend.name ?? "") as string;
       return {
         name: (trend.name ?? "") as string,
-        tweet_volume: null as number | null,
-        url: `https://twitter.com/search?q=${encodeURIComponent(query)}`,
+        tweet_volume: (trend.tweetVolume ?? trend.tweet_volume ?? null) as number | null,
+        url: (trend.url ?? `https://twitter.com/search?q=${encodeURIComponent(query)}`) as string,
       };
     });
 
