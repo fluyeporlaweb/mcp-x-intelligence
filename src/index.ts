@@ -53,11 +53,26 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
+function isJsonRpcRequest(value: unknown): value is JsonRpcRequest {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return false;
+
+  const request = value as Record<string, unknown>;
+  const id = request.id;
+  const hasValidId =
+    id === undefined || id === null || typeof id === "string" || typeof id === "number";
+
+  return request.jsonrpc === "2.0" && typeof request.method === "string" && hasValidId;
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { "Content-Type": "application/json", ...CORS_HEADERS },
   });
+}
+
+function noContentResponse(): Response {
+  return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
 function rpcError(id: string | number | null | undefined, code: number, message: string): unknown {
@@ -66,10 +81,14 @@ function rpcError(id: string | number | null | undefined, code: number, message:
 
 /** Dispatches a single JSON-RPC request to the appropriate MCP handler. */
 async function handleRpcMessage(
-  msg: JsonRpcRequest,
+  msg: unknown,
   apiKey: string,
   hermesTweetConfig?: HermesTweetConfig,
 ): Promise<unknown> {
+  if (!isJsonRpcRequest(msg)) {
+    return rpcError(null, ERR_INVALID_REQUEST, "Invalid JSON-RPC request");
+  }
+
   const { method, id, params } = msg;
 
   // Notifications (no id) never return a response
@@ -188,13 +207,20 @@ export default {
 
     // Batch requests
     if (Array.isArray(body)) {
+      if (body.length === 0) {
+        return jsonResponse(rpcError(null, ERR_INVALID_REQUEST, "Invalid JSON-RPC request"));
+      }
+
       const responses = await Promise.all(
-        body.map((msg) => handleRpcMessage(msg as JsonRpcRequest, apiKey, hermesTweetConfig)),
+        body.map((msg) => handleRpcMessage(msg, apiKey, hermesTweetConfig)),
       );
-      return jsonResponse(responses.filter((r) => r !== null));
+      const responseBodies = responses.filter((response) => response !== null);
+      return responseBodies.length === 0
+        ? noContentResponse()
+        : jsonResponse(responseBodies);
     }
 
-    const response = await handleRpcMessage(body as JsonRpcRequest, apiKey, hermesTweetConfig);
-    return jsonResponse(response);
+    const response = await handleRpcMessage(body, apiKey, hermesTweetConfig);
+    return response === null ? noContentResponse() : jsonResponse(response);
   },
 } satisfies ExportedHandler<Env>;
