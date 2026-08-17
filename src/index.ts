@@ -10,7 +10,7 @@ export interface Env {
 }
 
 const SERVER_NAME = "mcp-x-intelligence";
-const SERVER_VERSION = "1.2.4";
+const SERVER_VERSION = "1.2.5";
 const PROTOCOL_VERSION = "2024-11-05";
 
 /** All tool manifests in registration order. */
@@ -33,6 +33,16 @@ interface JsonRpcRequest {
   id?: string | number | null;
   method: string;
   params?: Record<string, unknown>;
+}
+
+/** Compares two secrets in constant time so failures leak no timing signal. */
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -128,20 +138,18 @@ export default {
     const byokKey = request.headers.get("x-twitterapi-key");
     const workerSecret = request.headers.get("x-worker-secret")
       ?? request.headers.get("X-MCP-Worker-Secret");
-    const isMcpize = (request.headers.get("user-agent") ?? "").toLowerCase().includes("mcpize");
 
     let apiKey: string;
 
     if (byokKey) {
       // BYOK: caller supplies their own twitterapi.io key
       apiKey = byokKey;
-    } else if (env.WORKER_SECRET && workerSecret === env.WORKER_SECRET) {
-      // Personal use: valid worker secret → use server's configured key
-      apiKey = env.TWITTERAPI_KEY;
-    } else if (isMcpize) {
-      // MCPize gateway manages its own auth; use server's configured key
+    } else if (env.WORKER_SECRET && workerSecret && safeEqual(workerSecret, env.WORKER_SECRET)) {
+      // Personal use / gateway: valid shared secret → use server's configured key
       apiKey = env.TWITTERAPI_KEY;
     } else {
+      // Fail closed. Callers with no key of their own must present the shared
+      // secret — never trust a self-reported identity such as the user agent.
       return new Response("Unauthorized", { status: 401, headers: CORS_HEADERS });
     }
 
