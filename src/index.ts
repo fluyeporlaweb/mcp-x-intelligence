@@ -2,7 +2,7 @@ import { SEARCH_MANIFEST, searchViralContent } from "./tools/search.js";
 import { ACCOUNT_MANIFEST, analyzeAccount } from "./tools/account.js";
 import { TRENDS_MANIFEST, getTrendingTopics } from "./tools/trends.js";
 import { NICHE_MANIFEST, getNicheLeaders } from "./tools/niche.js";
-import type { ToolResult } from "./client.js";
+import type { ToolResult, TwitterProvider } from "./client.js";
 
 export interface Env {
   TWITTERAPI_KEY: string;
@@ -19,7 +19,8 @@ const TOOLS_MANIFEST = [SEARCH_MANIFEST, ACCOUNT_MANIFEST, TRENDS_MANIFEST, NICH
 const CORS_HEADERS: Record<string, string> = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type, x-api-key, x-twitterapi-key, x-worker-secret, X-MCP-Worker-Secret",
+  "Access-Control-Allow-Headers":
+    "Content-Type, x-api-key, x-twitterapi-key, x-xquik-api-key, x-worker-secret, X-MCP-Worker-Secret",
 };
 
 // JSON-RPC 2.0 error codes
@@ -45,6 +46,11 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
+interface ProviderAuth {
+  apiKey: string;
+  provider: TwitterProvider;
+}
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -59,7 +65,7 @@ function rpcError(id: string | number | null | undefined, code: number, message:
 /** Dispatches a single JSON-RPC request to the appropriate MCP handler. */
 async function handleRpcMessage(
   msg: JsonRpcRequest,
-  apiKey: string,
+  auth: ProviderAuth,
 ): Promise<unknown> {
   const { method, id, params } = msg;
 
@@ -97,16 +103,32 @@ async function handleRpcMessage(
       try {
         switch (toolName) {
           case "search_viral_content":
-            result = await searchViralContent(toolArgs as unknown as Parameters<typeof searchViralContent>[0], apiKey);
+            result = await searchViralContent(
+              toolArgs as unknown as Parameters<typeof searchViralContent>[0],
+              auth.apiKey,
+              auth.provider,
+            );
             break;
           case "analyze_account":
-            result = await analyzeAccount(toolArgs as unknown as Parameters<typeof analyzeAccount>[0], apiKey);
+            result = await analyzeAccount(
+              toolArgs as unknown as Parameters<typeof analyzeAccount>[0],
+              auth.apiKey,
+              auth.provider,
+            );
             break;
           case "get_trending_topics":
-            result = await getTrendingTopics(toolArgs as unknown as Parameters<typeof getTrendingTopics>[0], apiKey);
+            result = await getTrendingTopics(
+              toolArgs as unknown as Parameters<typeof getTrendingTopics>[0],
+              auth.apiKey,
+              auth.provider,
+            );
             break;
           case "get_niche_leaders":
-            result = await getNicheLeaders(toolArgs as unknown as Parameters<typeof getNicheLeaders>[0], apiKey);
+            result = await getNicheLeaders(
+              toolArgs as unknown as Parameters<typeof getNicheLeaders>[0],
+              auth.apiKey,
+              auth.provider,
+            );
             break;
           default:
             return rpcError(id, ERR_METHOD_NOT_FOUND, `Unknown tool: ${toolName}`);
@@ -136,17 +158,20 @@ export default {
     }
 
     const byokKey = request.headers.get("x-twitterapi-key");
+    const xquikKey = request.headers.get("x-xquik-api-key");
     const workerSecret = request.headers.get("x-worker-secret")
       ?? request.headers.get("X-MCP-Worker-Secret");
 
-    let apiKey: string;
+    let auth: ProviderAuth;
 
-    if (byokKey) {
+    if (xquikKey) {
+      auth = { apiKey: xquikKey, provider: "xquik" };
+    } else if (byokKey) {
       // BYOK: caller supplies their own twitterapi.io key
-      apiKey = byokKey;
+      auth = { apiKey: byokKey, provider: "twitterapi" };
     } else if (env.WORKER_SECRET && workerSecret && safeEqual(workerSecret, env.WORKER_SECRET)) {
       // Personal use / gateway: valid shared secret → use server's configured key
-      apiKey = env.TWITTERAPI_KEY;
+      auth = { apiKey: env.TWITTERAPI_KEY, provider: "twitterapi" };
     } else {
       // Fail closed. Callers with no key of their own must present the shared
       // secret — never trust a self-reported identity such as the user agent.
@@ -163,12 +188,12 @@ export default {
     // Batch requests
     if (Array.isArray(body)) {
       const responses = await Promise.all(
-        body.map((msg) => handleRpcMessage(msg as JsonRpcRequest, apiKey)),
+        body.map((msg) => handleRpcMessage(msg as JsonRpcRequest, auth)),
       );
       return jsonResponse(responses.filter((r) => r !== null));
     }
 
-    const response = await handleRpcMessage(body as JsonRpcRequest, apiKey);
+    const response = await handleRpcMessage(body as JsonRpcRequest, auth);
     return jsonResponse(response);
   },
 } satisfies ExportedHandler<Env>;

@@ -1,4 +1,4 @@
-import { TwitterClient, ToolResult, errorResult } from "../client.js";
+import { TwitterClient, type TwitterProvider, ToolResult, errorResult } from "../client.js";
 
 /** JSON Schema definition for the analyze_account tool. */
 export const ACCOUNT_MANIFEST = {
@@ -40,14 +40,19 @@ function getUtcHour(timestamp: string): number {
  * @param args - Tool input arguments
  * @param args.username - X/Twitter username without @ symbol
  * @param args.tweets_limit - Number of recent tweets to analyze (default: 20)
- * @param apiKey - twitterapi.io API key
+ * @param apiKey - provider API key
+ * @param provider - data provider to use for X reads
  * @returns Followers, engagement metrics, top 5 posts, most active hours
  */
-export async function analyzeAccount(args: AccountArgs, apiKey: string): Promise<ToolResult> {
+export async function analyzeAccount(
+  args: AccountArgs,
+  apiKey: string,
+  provider: TwitterProvider = "twitterapi",
+): Promise<ToolResult> {
   const { username, tweets_limit = 20 } = args;
 
   try {
-    const client = new TwitterClient(apiKey);
+    const client = new TwitterClient(apiKey, provider);
 
     const [userInfo, tweetsData] = await Promise.all([
       client.get<Record<string, unknown>>("/twitter/user/info", { userName: username }),

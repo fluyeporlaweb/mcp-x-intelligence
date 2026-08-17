@@ -1,4 +1,4 @@
-import { TwitterClient, ToolResult, errorResult } from "../client.js";
+import { TwitterClient, type TwitterProvider, ToolResult, errorResult } from "../client.js";
 
 /** JSON Schema definition for the get_niche_leaders tool. */
 export const NICHE_MANIFEST = {
@@ -36,14 +36,19 @@ interface NicheArgs {
  * @param args - Tool input arguments
  * @param args.keyword - Niche or topic keyword to search
  * @param args.limit - Maximum results to return (default: 10)
- * @param apiKey - twitterapi.io API key
+ * @param apiKey - provider API key
+ * @param provider - data provider to use for X reads
  * @returns List of accounts sorted by followers descending with profile details
  */
-export async function getNicheLeaders(args: NicheArgs, apiKey: string): Promise<ToolResult> {
+export async function getNicheLeaders(
+  args: NicheArgs,
+  apiKey: string,
+  provider: TwitterProvider = "twitterapi",
+): Promise<ToolResult> {
   const { keyword, limit = 10 } = args;
 
   try {
-    const client = new TwitterClient(apiKey);
+    const client = new TwitterClient(apiKey, provider);
 
     const requestParams = {
       query: keyword,
@@ -61,11 +66,11 @@ export async function getNicheLeaders(args: NicheArgs, apiKey: string): Promise<
 
     const leaders = rawUsers
       .map((user) => {
-        const handle = (user.userName ?? user.screen_name ?? "") as string;
+        const handle = (user.userName ?? user.username ?? user.screen_name ?? "") as string;
         return {
           username: handle,
           name: (user.name ?? "") as string,
-          followers: (user.followersCount ?? user.followers_count ?? 0) as number,
+          followers: (user.followers ?? user.followersCount ?? user.followers_count ?? 0) as number,
           verified: (user.isVerified ?? user.verified ?? false) as boolean,
           bio: ((user.description ?? user.bio ?? "") as string).slice(0, 160),
           profile_url: `https://twitter.com/${handle}`,
