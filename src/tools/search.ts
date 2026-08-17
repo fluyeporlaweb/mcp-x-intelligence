@@ -1,4 +1,9 @@
 import { TwitterClient, ToolResult, errorResult } from "../client.js";
+import type { HermesTweetConfig } from "../hermes-tweet.js";
+import {
+  searchViralContentWithHermesTweet,
+  shouldUseHermesTweetSearch,
+} from "../hermes-tweet.js";
 
 /** JSON Schema definition for the search_viral_content tool. */
 export const SEARCH_MANIFEST = {
@@ -28,6 +33,11 @@ export const SEARCH_MANIFEST = {
         type: "number",
         description: "Maximum number of results to return (default: 20)",
       },
+      search_backend: {
+        type: "string",
+        enum: ["twitterapi", "hermes-tweet"],
+        description: "Optional search backend. Defaults to twitterapi; use hermes-tweet for Hermes Tweet/Xquik.",
+      },
     },
     required: ["query"],
   },
@@ -43,6 +53,7 @@ interface SearchArgs {
   min_retweets?: number;
   hours_back?: number;
   limit?: number;
+  search_backend?: string;
 }
 
 /**
@@ -55,12 +66,21 @@ interface SearchArgs {
  * @param args.hours_back - How many hours back to search (default: 48)
  * @param args.limit - Maximum number of results (default: 20)
  * @param apiKey - twitterapi.io API key
+ * @param hermesTweetConfig - Optional Hermes Tweet backend configuration
  * @returns Array of viral tweets sorted by likes descending
  */
-export async function searchViralContent(args: SearchArgs, apiKey: string): Promise<ToolResult> {
+export async function searchViralContent(
+  args: SearchArgs,
+  apiKey: string,
+  hermesTweetConfig?: HermesTweetConfig,
+): Promise<ToolResult> {
   const { query, min_likes = 50, min_retweets = 0, hours_back = 48, limit = 20 } = args;
 
   try {
+    if (shouldUseHermesTweetSearch(args, hermesTweetConfig)) {
+      return await searchViralContentWithHermesTweet(args, hermesTweetConfig);
+    }
+
     const client = new TwitterClient(apiKey);
 
     const since = new Date(Date.now() - hours_back * 60 * 60 * 1000);

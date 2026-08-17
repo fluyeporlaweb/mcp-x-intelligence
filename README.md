@@ -118,6 +118,7 @@ min_likes     number   optional  Minimum likes (default: 50)
 min_retweets  number   optional  Minimum retweets (default: 0)
 hours_back    number   optional  Hours back to search (default: 48)
 limit         number   optional  Max results (default: 20)
+search_backend string   optional  Search backend: twitterapi or hermes-tweet
 ```
 
 **`analyze_account`**
@@ -215,6 +216,33 @@ and try again.
 Join the community: [t.me/fluyeporlaweb](https://t.me/fluyeporlaweb)
 
 Listed on [Smithery](https://smithery.ai/server/fluyeporlaweb/mcp-x-intelligence)
+
+### Optional Hermes Tweet Search Backend
+
+`search_viral_content` can use [Hermes Tweet](https://github.com/Xquik-dev/hermes-tweet) as a search backend. The default twitterapi.io flow remains unchanged, and the other tools keep using `TWITTERAPI_KEY`.
+
+Configure it globally with `HERMES_TWEET_API_KEY` and `X_SEARCH_BACKEND=hermes-tweet`, or enable it per request:
+
+```bash
+curl -X POST https://mcp-x-intelligence.<account>.workers.dev \
+  -H "Content-Type: application/json" \
+  -H "x-twitterapi-key: tk_YOUR_KEY" \
+  -H "x-hermes-tweet-key: ht_YOUR_KEY" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"search_viral_content","arguments":{"query":"AI agents","search_backend":"hermes-tweet"}}}'
+```
+
+Supported backend configuration:
+
+| Name | Type | Description |
+|------|------|-------------|
+| `HERMES_TWEET_API_KEY` | Secret | Server-side Hermes Tweet key |
+| `XQUIK_API_KEY` | Secret | Server-side Xquik key |
+| `x-hermes-tweet-key` | Header | Request-scoped Hermes Tweet key |
+| `x-xquik-api-key` | Header | Request-scoped Xquik key |
+| `x-search-backend` | Header | Request-scoped backend override |
+| `HERMES_TWEET_BASE_URL` | Secret | Optional compatible API base URL |
+| `XQUIK_BASE_URL` | Secret | Optional Xquik-compatible API base URL |
+| `X_SEARCH_BACKEND` | Secret | Set to `hermes-tweet` to make Hermes Tweet the default search backend |
 
 ---
 
